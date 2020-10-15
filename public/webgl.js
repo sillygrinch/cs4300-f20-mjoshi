@@ -11,6 +11,7 @@ const webglUtils = {
     rgb.blue /= 256
     return rgb
   },
+
   createProgramFromScripts: (gl, vertexShaderElementId, fragmentShaderElementId) => {
     // Get the strings for our GLSL shaders
     const vertexShaderSource   = document.querySelector(vertexShaderElementId).text;
