@@ -87,6 +87,7 @@ const doMouseDown = (event) => {
 
   console.log(x, y)
  const translation = {x, y, z: -150}
+  const rotation = {x:0, y:0, z: 180}
  const shapeType = document.querySelector("input[name='shape']:checked").value
 
   const shape = {
@@ -97,7 +98,7 @@ const doMouseDown = (event) => {
   const center = {
     position: {x, y}
   }
-
+console.log(shape);
 addShape(shape, shapeType);
 
 }
