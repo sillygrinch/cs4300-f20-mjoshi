@@ -8,6 +8,17 @@ const TRIANGLE = "TRIANGLE"
 const origin = {x: 0, y: 0}
 const sizeOne = {width: 1, height: 1, depth: 1}
 const CUBE = "CUBE"
+
+const up = [0, 1, 0]
+let target = [0, 0, 0]
+let lookAt = true
+
+let camera = {
+translation: {x: -45, y: -35, z: 21},
+rotation: {x: 40, y: 235, z: 0}
+}
+let lightSource = [0.4, 0.3, 0.5]
+
 let shapes = [
  {
    type: RECTANGLE,
@@ -78,10 +89,10 @@ let bufferCoords
 const doMouseDown = (event) => {
   const boundingRectangle = canvas.getBoundingClientRect()
   // console.log(boundingRectangle)
-  const x =  Math.round(event.clientX
+  var x =  Math.round(event.clientX
                           - boundingRectangle.left
                           - boundingRectangle.width/2);
-  const y = -Math.round(event.clientY
+  var y = -Math.round(event.clientY
                          - boundingRectangle.top
  - boundingRectangle.height/2);
 
@@ -104,11 +115,11 @@ addShape(shape, shapeType);
 }
 
 const init = () => {
-
-
   const canvas = document.querySelector("#canvas");
   gl = canvas.getContext("webgl");
-  document.getElementById("tx").onchange = event => updateTranslation(event, "x")
+
+  document.getElementById("color").onchange = event => updateColor(event)
+ document.getElementById("tx").onchange = event => updateTranslation(event, "x")
   document.getElementById("ty").onchange = event => updateTranslation(event, "y")
 document.getElementById("tz").onchange = event => updateTranslation(event, "z")
 
@@ -123,7 +134,25 @@ document.getElementById("tz").onchange = event => updateTranslation(event, "z")
   document.getElementById("rz").onchange = event => updateRotation(event, "z")
  document.getElementById("fv").onchange = event => updateFieldOfView(event)
 
-  document.getElementById("color").onchange = event => updateColor(event)
+  document.getElementById("lookAt").onchange = event => webglUtils.toggleLookAt(event)
+  document.getElementById("ctx").onchange = event => webglUtils.updateCameraTranslation(event, "x")
+  document.getElementById("cty").onchange = event => webglUtils.updateCameraTranslation(event, "y")
+  document.getElementById("ctz").onchange = event => webglUtils.updateCameraTranslation(event, "z")
+  document.getElementById("crx").onchange = event => webglUtils.updateCameraRotation(event, "x")
+  document.getElementById("cry").onchange = event => webglUtils.updateCameraRotation(event, "y")
+  document.getElementById("crz").onchange = event => webglUtils.updateCameraRotation(event, "z")
+  document.getElementById("ltx").onchange = event => webglUtils.updateLookAtTranslation(event, 0)
+  document.getElementById("lty").onchange = event => webglUtils.updateLookAtTranslation(event, 1)
+  document.getElementById("ltz").onchange = event => webglUtils.updateLookAtTranslation(event, 2)
+
+  document.getElementById("lookAt").checked = lookAt
+  document.getElementById("ctx").value = camera.translation.x
+  document.getElementById("cty").value = camera.translation.y
+  document.getElementById("ctz").value = camera.translation.z
+  document.getElementById("crx").value = camera.rotation.x
+  document.getElementById("cry").value = camera.rotation.y
+  document.getElementById("crz").value = camera.rotation.z
+
   canvas.addEventListener(
     "mousedown",
     doMouseDown,
@@ -172,6 +201,46 @@ const render = () => {
   const zFar = 2000;
 
   gl.bindBuffer(gl.ARRAY_BUFFER, bufferCoords);
+  if(lookAt) {
+        let cameraMatrix = m4.identity()
+        cameraMatrix = m4.translate(
+            cameraMatrix,
+            camera.translation.x,
+            camera.translation.y,
+            camera.translation.z)
+        const cameraPosition = [
+            cameraMatrix[12],
+            cameraMatrix[13],
+            cameraMatrix[14]]
+        cameraMatrix = m4.lookAt(
+            cameraPosition,
+            target,
+            up)
+        cameraMatrix = m4.inverse(cameraMatrix)
+        const projectionMatrix = m4.perspective(
+            fieldOfViewRadians, aspect, zNear, zFar)
+        var viewProjectionMatrix = m4.multiply(
+            projectionMatrix, cameraMatrix)
+    }
+    else {
+        cameraMatrix = m4.zRotate(
+            cameraMatrix,
+            m4.degToRad(camera.rotation.z));
+        cameraMatrix = m4.xRotate(
+            cameraMatrix,
+            m4.degToRad(camera.rotation.x));
+        cameraMatrix = m4.yRotate(
+            cameraMatrix,
+            m4.degToRad(camera.rotation.y));
+        cameraMatrix = m4.translate(
+            cameraMatrix,
+            camera.translation.x,
+            camera.translation.y,
+            camera.translation.z);
+    }
+
+
+
 
  const $shapeList = $("#object-list")
  $shapeList.empty()
@@ -207,8 +276,9 @@ const render = () => {
       matrix = m3.translate(matrix, shape.translation.x, shape.translation.y);
       matrix = m3.rotate(matrix, shape.rotation.z);
       matrix = m3.scale(matrix, shape.scale.x, shape.scale.y);
-let M = computeModelViewMatrix(gl.canvas, shape, aspect, zNear, zFar)
-
+//let M = computeModelViewMatrix(gl.canvas, shape, aspect, zNear, zFar)
+        let M = computeModelViewMatrix(
+            shape, viewProjectionMatrix)
       // apply transformation matrix.
        gl.uniformMatrix4fv(uniformMatrix, false, M)
         if(shape.type === CUBE) {
@@ -324,17 +394,24 @@ const renderTriangle = (triangle) => {
 }
 
 let fieldOfViewRadians = m4.degToRad(60)
-const computeModelViewMatrix = (canvas, shape, aspect, zNear, zFar) => {
-  const width = canvas.clientWidth
-  const height = canvas.clientHeight
-  let M = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar)
-  M = m4.translate(M, shape.translation.x, shape.translation.y, shape.translation.z)
-  M = m4.xRotate(M, m4.degToRad(shape.rotation.x))
-  M = m4.yRotate(M, m4.degToRad(shape.rotation.y))
-  M = m4.zRotate(M, m4.degToRad(shape.rotation.z))
-  M = m4.scale(M, shape.scale.x, shape.scale.y, shape.scale.z)
-  return M
+const computeModelViewMatrix = (shape, viewProjectionMatrix) => {
+{
+ M = m4.translate(viewProjectionMatrix,
+                                 shape.translation.x,
+                                 shape.translation.y,
+                                 shape.translation.z)
+ M = m4.xRotate(M, m4.degToRad(shape.rotation.x))
+ M = m4.yRotate(M, m4.degToRad(shape.rotation.y))
+ M = m4.zRotate(M, m4.degToRad(shape.rotation.z))
+ M = m4.scale(M, shape.scale.x, shape.scale.y, shape.scale.z)
+ return M
 }
+}
+
+
+
+
+
 const renderCube = (cube) => {
   const geometry = [
      0,  0,  0,    0, 30,  0,   30,  0,  0,
