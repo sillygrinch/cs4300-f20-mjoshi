@@ -59,70 +59,7 @@ let shapes = [
         scale: {x: 0.5, y: 0.5, z: 0.5},
         rotation: {x: 0, y: 0, z: 0}
     },
-    // {
-    //   type: LETTER_F,
-    //   position: origin,
-    //   dimensions: sizeOne,
-    //   color: BLUE_RGB,
-    //   translation: {x: -150, y: 0, z: -360},
-    //   scale: {x: 1, y: 1, z: 1},
-    //   rotation: {x: m4.degToRad(190), y: m4.degToRad(40), z: m4.degToRad(320)},
-    // },
-    // {
-    //   type: LETTER_F,
-    //   position: origin,
-    //   dimensions: sizeOne,
-    //   color: RED_RGB,
-    //   translation: {x: -100, y: 0, z: -400},
-    //   scale: {x: 1, y: 1, z: 1},
-    //   rotation: {x: m4.degToRad(190), y: m4.degToRad(40), z: m4.degToRad(320)},
-    // },
-    // {
-    //   type: RECTANGLE,
-    //   position: origin,
-    //   dimensions: sizeOne,
-    //   color: BLUE_RGB,
-    //   translation: {x: -15, y: 0, z: -20},
-    //   scale: {x: 10, y: 10, z: 10},
-    //   rotation: {x: 0, y: 0, z: 0}
-    // },
-    // {
-    //   type: TRIANGLE,
-    //   position: origin,
-    //   dimensions: sizeOne,
-    //   color: RED_RGB,
-    //   translation: {x: 15, y: 0, z: -20},
-    //   scale: {x: 10, y: 10, z: 10},
-    //   rotation: {x: 0, y: 0, z: 180}
-    // },
-    // {
-    //   type: CUBE,
-    //   position: origin,
-    //   dimensions: sizeOne,
-    //   color: RED_RGB,
-    //   translation: {x:   -20, y: 0, z: 0},
-    //   scale:       {x:   0.5, y:   0.5, z:   0.5},
-    //   rotation:    {x:   0, y:  0, z:   0},
-    // },
 
-    // {
-    //   type: CUBE,
-    //   position: origin,
-    //   dimensions: sizeOne,
-    //   color: BLUE_RGB,
-    //   translation: {x: -50, y: 0, z: -100},
-    //   scale: {x: 1, y: 1, z: 1},
-    //   rotation: {x: 45, y: 45, z: 45},
-    // },
-    // {
-    //   type: CUBE,
-    //   position: origin,
-    //   dimensions: sizeOne,
-    //   color: GREEN_RGB,
-    //   translation: {x: 0, y: 0, z: -100},
-    //   scale: {x: 1, y: 1, z: 1},
-    //   rotation: {x: 45, y: 45, z: 45},
-    // }
 ]
 
 
